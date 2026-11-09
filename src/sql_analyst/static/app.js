@@ -79,12 +79,14 @@ function hideTip() { tip.hidden = true; }
 function renderChart(spec, columns, rows) {
   const block = $("chart-block"), host = $("chart"), legend = $("legend");
   host.replaceChildren(); legend.replaceChildren(); hideTip();
-  if (!spec || spec.type === "none" || !rows.length) { block.hidden = true; return; }
+  const noChart = !spec || spec.type === "none" || !rows.length;
+  document.querySelector(".cells").classList.toggle("no-chart", noChart);
+  if (noChart) { block.hidden = true; return; }
   block.hidden = false;
-  $("chart-why").textContent = "chart: " + spec.reason;
+  $("chart-why").textContent = spec.reason;
   const xi = spec.x ? columns.indexOf(spec.x) : -1;
   const yi = spec.y.map((c) => columns.indexOf(c));
-  $("chart-title").textContent = spec.type === "number" ? "" :
+  $("chart-title").textContent = spec.type === "number" ? "Value" :
     spec.y.join(", ") + (spec.x ? " by " + spec.x : "");
   if (spec.y.length > 1) {
     spec.y.forEach((name, i) => {
@@ -266,19 +268,37 @@ function scatter(host, spec, rows, xi, yi) {
 }
 
 // ---------------------------------------------------------------- result panels
-const SQL_KW = /\b(SELECT|FROM|WHERE|GROUP BY|ORDER BY|HAVING|LIMIT|JOIN|LEFT JOIN|INNER JOIN|ON|AS|AND|OR|WITH|DESC|ASC|SUM|COUNT|AVG|MIN|MAX|CASE|WHEN|THEN|ELSE|END|DISTINCT|UNION|IN|NOT|NULL|IS|CAST|ROUND|STRFTIME|BETWEEN)\b/g;
+const SQL_KW = new Set(("SELECT FROM WHERE GROUP BY ORDER HAVING LIMIT OFFSET JOIN LEFT RIGHT FULL OUTER INNER CROSS ON AS AND OR " +
+  "WITH DESC ASC CASE WHEN THEN ELSE END DISTINCT UNION ALL IN NOT NULL IS BETWEEN LIKE ILIKE EXISTS OVER PARTITION " +
+  "FILTER NULLS FIRST LAST TRUE FALSE INTERVAL USING").split(" "));
+const SQL_TOKEN = /('(?:[^']|'')*')|("(?:[^"]|"")*")|(\b\d+(?:\.\d+)?\b)|([A-Za-z_][A-Za-z0-9_]*)(?=\s*\()|([A-Za-z_][A-Za-z0-9_]*)|(<=|>=|<>|!=|::|[=<>*+\-\/%,()|])/g;
+let lastSql = "";
+function highlightLine(line) {
+  const out = el("span", { class: "ln" });
+  let last = 0;
+  for (const m of line.matchAll(SQL_TOKEN)) {
+    if (m.index > last) out.append(document.createTextNode(line.slice(last, m.index)));
+    const [tok, str, , num, fn, word, op] = m;
+    let cls = "";
+    if (str) cls = "str";
+    else if (num) cls = "nm";
+    else if (fn) cls = SQL_KW.has(fn.toUpperCase()) ? "kw" : "fn";
+    else if (word && SQL_KW.has(word.toUpperCase())) cls = "kw";
+    else if (op) cls = "op";
+    out.append(cls ? el("span", { class: cls, text: tok }) : document.createTextNode(tok));
+    last = m.index + tok.length;
+  }
+  if (last < line.length) out.append(document.createTextNode(line.slice(last)));
+  return out;
+}
 function renderSql(sql) {
   const pre = $("sql");
   pre.replaceChildren();
-  if (!sql) { pre.textContent = "No query ran."; return; }
+  lastSql = sql || "";
+  if (!sql) { pre.append(el("span", { class: "empty-q", text: "-- no query ran" })); return; }
   const pretty = sql.replace(/\s+(FROM|WHERE|GROUP BY|ORDER BY|HAVING|LIMIT|JOIN|LEFT JOIN|INNER JOIN|UNION)\b/g, "\n$1");
-  let last = 0;
-  for (const m of pretty.matchAll(SQL_KW)) {
-    pre.append(document.createTextNode(pretty.slice(last, m.index)));
-    pre.append(el("span", { class: "kw", text: m[0] }));
-    last = m.index + m[0].length;
-  }
-  pre.append(document.createTextNode(pretty.slice(last)));
+  lastSql = pretty;
+  pretty.split("\n").forEach((line) => pre.append(highlightLine(line)));
 }
 
 const NODE_TEXT = {
@@ -301,7 +321,7 @@ function renderTrace(trace) {
     const [title, detail] = (NODE_TEXT[t.node] || (() => [t.node, ""]))(t);
     const bad = t.error || t.ok === false || t.node === "retry" || t.node === "give_up";
     const li = el("li", { class: bad ? "bad" : "good" },
-      el("span", { class: "n", text: String(i + 1).padStart(2, "0") }),
+      el("span", { class: "n", text: String(i + 1) }),
       el("span", { class: "what" }, el("b", { text: title }), document.createTextNode(" "), el("span", { text: detail || "" })),
       el("span", { class: "ms", text: t.ms >= 1000 ? (t.ms / 1000).toFixed(1) + " s" : Math.round(t.ms) + " ms" }));
     ol.append(li);
@@ -314,16 +334,16 @@ function renderTable(columns, rows, truncated) {
   document.querySelector(".table-block").hidden = !columns.length;
   if (!columns.length) return;
   const numeric = columns.map((_, i) => rows.length && rows.every((r) => r[i] === null || isNum(r[i])));
-  const head = el("tr");
+  const head = el("tr", {}, el("th", { class: "rn", "aria-label": "row" }));
   columns.forEach((c, i) => head.append(el("th", { class: numeric[i] ? "n" : "", text: c })));
   const body = el("tbody");
   rows.slice(0, 500).forEach((r) => {
-    const tr = el("tr");
+    const tr = el("tr", {}, el("td", { class: "rn", text: String(body.children.length + 1) }));
     r.forEach((v, i) => tr.append(el("td", { class: v === null ? "null" : numeric[i] ? "n" : "", text: v === null ? "null" : numeric[i] ? fmt(v) : String(v), title: v === null ? "" : String(v) })));
     body.append(tr);
   });
   table.append(el("thead", {}, head), body);
-  $("table-label").textContent = `Result · ${rows.length.toLocaleString()} row${rows.length === 1 ? "" : "s"}${truncated ? " (capped)" : ""}`;
+  $("table-label").textContent = `Result · ${rows.length.toLocaleString()} row${rows.length === 1 ? "" : "s"}${truncated ? " (capped)" : ""} × ${columns.length} col${columns.length === 1 ? "" : "s"}`;
 }
 
 function render(res) {
@@ -335,13 +355,16 @@ function render(res) {
   clarify.replaceChildren();
   const caveats = $("caveats");
   caveats.replaceChildren();
+  const badge = $("status-badge");
+  badge.className = "badge " + res.status;
+  badge.textContent = { answered: "Answered", clarify: "Needs clarification", declined: "Declined", failed: "Failed" }[res.status] || res.status;
   if (res.status === "clarify") {
     $("answer").textContent = res.clarifying_question;
     clarify.hidden = false;
     clarify.append(el("p", { text: "Pick one, or rephrase the question." }));
     const opts = el("div", { class: "opts" });
     res.options.forEach((o) => {
-      const b = el("button", { class: "pill ghost", type: "button", text: o });
+      const b = el("button", { class: "opt", type: "button", text: o });
       b.addEventListener("click", () => ask(res.question, o));
       opts.append(b);
     });
@@ -375,12 +398,47 @@ function render(res) {
   refreshSpend();
 }
 
+// ---------------------------------------------------------------- schema browser
+const TABLE_ICO = '<svg class="t-ico" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 6.5h13M6 6.5v7" stroke="currentColor" stroke-width="1.4"/></svg>';
+const CARET = '<svg class="caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 3 7.5 6l-3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function renderSchema(tables) {
+  const ul = $("schema");
+  ul.replaceChildren();
+  [...tables].sort((a, b) => a.name.localeCompare(b.name)).forEach((t, i) => {
+    const sum = el("summary");
+    sum.insertAdjacentHTML("beforeend", CARET + TABLE_ICO); // static markup only, no data
+    sum.append(el("span", { class: "t-name", text: t.name }),
+      el("span", { class: "t-rows", text: fmt(t.rows, { compact: true }), title: `${t.rows.toLocaleString()} rows` }));
+    const cols = el("ul", { class: "cols" });
+    t.columns.forEach((c) => cols.append(el("li", { "data-name": c.toLowerCase() },
+      el("span", { class: "c-ico", "aria-hidden": "true" }), el("span", { class: "c-name", text: c }))));
+    const det = el("details", { "data-name": t.name.toLowerCase() }, sum, cols);
+    if (i < 3) det.open = true;
+    ul.append(el("li", {}, det));
+  });
+}
+function filterSchema(q) {
+  q = q.trim().toLowerCase();
+  document.querySelectorAll("#schema > li").forEach((li) => {
+    const det = li.firstElementChild;
+    const tableHit = !q || det.dataset.name.includes(q);
+    let colHit = false;
+    det.querySelectorAll(".cols li").forEach((c) => {
+      const own = !!q && c.dataset.name.includes(q);
+      if (own) colHit = true;
+      c.hidden = !(tableHit || own);
+    });
+    li.hidden = !(tableHit || colHit);
+    if (q && colHit) det.open = true;
+  });
+}
+
 // ---------------------------------------------------------------- wiring
 async function ask(question, clarification) {
   const go = $("go");
   go.disabled = true;
   $("result").classList.add("loading");
-  go.firstElementChild.textContent = "Thinking…";
+  go.querySelector("span").textContent = "Running…";
   try {
     const r = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ question, clarification: clarification || null }) });
@@ -394,7 +452,7 @@ async function ask(question, clarification) {
     $("error").textContent = "Request failed: " + e.message;
   } finally {
     go.disabled = false;
-    go.firstElementChild.textContent = "Ask";
+    go.querySelector("span").textContent = "Run";
     $("result").classList.remove("loading");
   }
 }
@@ -403,6 +461,7 @@ async function refreshSpend() {
   try {
     const s = await (await fetch("/api/spend")).json();
     $("spend").textContent = `$${s.spent_usd.toFixed(4)} / $${s.cap_usd.toFixed(2)}`;
+    $("spend-bar").style.width = Math.min(100, (100 * s.spent_usd) / (s.cap_usd || 1)).toFixed(1) + "%";
   } catch { /* the badge is optional */ }
 }
 
@@ -414,6 +473,7 @@ async function init() {
     const names = s.tables.map((t) => t.name.toLowerCase());
     const chinook = names.includes("invoice") && names.includes("track");
     $("db-name").textContent = chinook ? `chinook · ${s.dialect}` : s.dialect;
+    renderSchema(s.tables);
     (chinook ? EXAMPLES.chinook : EXAMPLES.generic).forEach((q) => {
       const b = el("button", { class: "chip", type: "button", text: q });
       b.addEventListener("click", () => { $("q").value = q; ask(q); });
@@ -433,12 +493,23 @@ $("ask").addEventListener("submit", (e) => {
 $("q").addEventListener("keydown", (e) => {
   if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); $("ask").requestSubmit(); }
 });
-$("copy").addEventListener("click", () => navigator.clipboard?.writeText($("sql").textContent));
+$("copy").addEventListener("click", () => navigator.clipboard?.writeText(lastSql));
 $("theme").addEventListener("click", () => {
   const root = document.documentElement;
-  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-  root.dataset.theme = dark ? "light" : "dark";
+  root.dataset.theme = root.dataset.theme === "light" ? "dark" : "light";
   try { localStorage.setItem("theme", root.dataset.theme); } catch { /* private mode */ }
 });
-try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch { /* ignore */ }
+try {
+  const t = new URLSearchParams(location.search).get("theme") || localStorage.getItem("theme");
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+} catch { /* ignore */ }
+function setSchemaOpen(open) {
+  document.body.classList.toggle("schema-open", open);
+  $("scrim").hidden = !open;
+  $("schema-toggle").setAttribute("aria-expanded", String(open));
+}
+$("schema-toggle").addEventListener("click", () => setSchemaOpen(!document.body.classList.contains("schema-open")));
+$("scrim").addEventListener("click", () => setSchemaOpen(false));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") setSchemaOpen(false); });
+$("schema-filter").addEventListener("input", (e) => filterSchema(e.target.value));
 init();

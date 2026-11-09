@@ -6,7 +6,7 @@
 
 Ask *"Which five countries bring in the most revenue?"* and you get the answer in a sentence, the SQL that ran, the result table, a chart picked from the shape of the result, and every step the agent took (with tokens, cost and latency). Ask it to *"drop the invoice table"* and nothing reaches the database.
 
-![The UI answering a revenue question: answer, bar chart, SQL panel and step trace](docs/screenshot.png)
+![The analytics workspace answering a revenue question: schema browser, answer, SQL editor, bar chart, result grid and run log](docs/screenshot.png)
 
 - **Read-only by construction, three layers deep.** sqlglot parses every model-written query and allows one SELECT only; the connection is read-only (SQLite authorizer / Postgres `READ ONLY` transaction); the Postgres role has SELECT grants only. Each layer blocks writes on its own ([ADR 001](docs/decisions/001-read-only-by-construction.md)).
 - **Statement timeouts and row caps** on every query, so a runaway join can't hang the service.

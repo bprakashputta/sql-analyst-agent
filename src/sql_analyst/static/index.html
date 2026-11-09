@@ -5,88 +5,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SQL Analyst</title>
 <meta name="description" content="Ask a business question; a read-only LangGraph agent writes the SQL, runs it, charts it and explains it.">
+<meta name="color-scheme" content="dark light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/style.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2317160f'/%3E%3Cpath d='M9 22V14M16 22V9M23 22v-5' stroke='%23f5f2eb' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f172a'/%3E%3Cpath d='M9 23V15M16 23V9M23 23v-6' stroke='%2314b8a6' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
-<a class="skip" href="#ask">Skip to the question</a>
-<header class="topbar">
-  <div class="wrap">
-    <a class="brand" href="/"><b>sql-analyst-agent</b><span class="slash">/</span><span id="db-name">database</span></a>
+<a class="skip" href="#q">Skip to the question</a>
+<div class="app">
+  <header class="topbar">
+    <button class="icon-btn schema-toggle" id="schema-toggle" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Show schema">
+      <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <a class="brand" href="/">
+      <svg class="logo" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect width="24" height="24" rx="6" fill="var(--accent)"/><path d="M7 17v-5M12 17V7M17 17v-3.5" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <span>Analyst</span>
+    </a>
+    <span class="conn" title="Connected with a read-only role"><i class="dot" aria-hidden="true"></i><span id="db-name">database</span><span class="ro">read-only</span></span>
     <div class="top-right">
-      <span class="label" id="spend" title="Spend so far against the hard cap">$0.0000 / $5.00</span>
-      <button class="theme" id="theme" type="button" aria-label="Toggle dark mode">
+      <div class="spend" title="API spend so far against the hard cap">
+        <span class="spend-lbl">Spend</span>
+        <span class="meter" aria-hidden="true"><i id="spend-bar"></i></span>
+        <span class="num" id="spend">$0.0000 / $5.00</span>
+      </div>
+      <button class="icon-btn" id="theme" type="button" aria-label="Toggle light or dark theme">
         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
       </button>
     </div>
-  </div>
-</header>
+  </header>
 
-<main class="wrap" id="main">
-  <section class="hero">
-    <p class="label eyebrow">Read-only analyst · <span id="dialect">sqlite</span> · <span id="table-count">0</span> tables</p>
-    <h1 class="display">Ask the database <em>a business question.</em></h1>
-    <form id="ask" class="ask" autocomplete="off">
+  <aside class="sidebar" id="sidebar" aria-label="Database schema">
+    <div class="side-top">
+      <h2 class="side-title">Schema</h2>
+      <span class="count"><span id="dialect">sqlite</span> · <span id="table-count">0</span> tables</span>
+    </div>
+    <label class="sr-only" for="schema-filter">Filter tables and columns</label>
+    <input class="filter" id="schema-filter" type="search" placeholder="Filter tables, columns…" autocomplete="off">
+    <ul class="schema" id="schema"></ul>
+    <p class="side-foot">Single SELECT only · sqlglot-parsed · read-only connection · statement timeout · row cap · <a href="https://github.com/bprakashputta/sql-analyst-agent">source</a></p>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <main class="main" id="main">
+    <form id="ask" class="askbar" autocomplete="off">
       <label class="sr-only" for="q">Question</label>
-      <textarea id="q" name="q" rows="2" maxlength="2000" placeholder="Which five countries bring in the most revenue, and how much each?"></textarea>
-      <div class="ask-row">
-        <div class="examples" id="examples" aria-label="Example questions"></div>
-        <button class="pill primary" id="go" type="submit"><span>Ask</span><kbd>⌘↵</kbd></button>
+      <div class="ask-input">
+        <svg class="ask-ico" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="9" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13.2 13.2 3.6 3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <textarea id="q" name="q" rows="1" maxlength="2000" placeholder="Ask a question about your data, e.g. which five countries bring in the most revenue?"></textarea>
+        <button class="run" id="go" type="submit"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg><span>Run</span><kbd>⌘↵</kbd></button>
       </div>
+      <div class="suggest"><span class="suggest-lbl">Try</span><div class="examples" id="examples" aria-label="Example questions"></div></div>
     </form>
-  </section>
 
-  <section id="result" class="result" hidden aria-live="polite">
-    <div class="grid">
-      <div class="col-main">
-        <div class="block">
-          <p class="label">Answer</p>
-          <p class="answer" id="answer"></p>
-          <div id="clarify" class="clarify" hidden></div>
+    <section id="result" class="result" hidden aria-live="polite">
+      <article class="panel answer-card">
+        <div class="answer-head">
+          <span class="badge" id="status-badge">Answered</span>
+          <span class="meta" id="sql-meta"></span>
         </div>
-        <figure class="block chart-block" id="chart-block" hidden>
-          <figcaption class="chart-head">
-            <span class="chart-title" id="chart-title"></span>
-            <span class="label" id="chart-why"></span>
-          </figcaption>
-          <div class="legend" id="legend"></div>
-          <div class="chart" id="chart"></div>
-          <div class="tip" id="tip" role="status" hidden></div>
-        </figure>
-        <div class="block notes" id="notes-block" hidden>
-          <p class="label">Assumptions and caveats</p>
+        <p class="answer" id="answer"></p>
+        <div id="clarify" class="clarify" hidden></div>
+        <div class="notes" id="notes-block" hidden>
+          <h3 class="sub">Assumptions and caveats</h3>
           <ul class="caveats" id="caveats"></ul>
         </div>
-      </div>
-      <aside class="col-side">
-        <div class="block">
-          <div class="side-head"><p class="label">SQL that ran</p><button class="link" id="copy" type="button">Copy</button></div>
+      </article>
+
+      <div class="cells">
+        <section class="panel sql-panel" aria-labelledby="sql-h">
+          <div class="panel-head">
+            <h3 class="panel-title" id="sql-h"><span class="tab">query.sql</span></h3>
+            <button class="ghost-btn" id="copy" type="button">Copy</button>
+          </div>
           <pre class="sql" id="sql"></pre>
-          <p class="meta" id="sql-meta"></p>
-        </div>
-        <div class="block">
-          <p class="label">Steps</p>
+        </section>
+
+        <figure class="panel chart-block" id="chart-block" hidden>
+          <figcaption class="panel-head">
+            <span class="panel-title" id="chart-title"></span>
+            <span class="why" id="chart-why"></span>
+          </figcaption>
+          <div class="chart-body">
+            <div class="legend" id="legend"></div>
+            <div class="chart" id="chart"></div>
+          </div>
+          <div class="tip" id="tip" role="status" hidden></div>
+        </figure>
+
+        <section class="panel table-block" aria-labelledby="table-label">
+          <div class="panel-head"><h3 class="panel-title" id="table-label">Result</h3></div>
+          <div class="table-wrap"><table id="table"></table></div>
+        </section>
+
+        <section class="panel trace-panel" aria-labelledby="trace-h">
+          <div class="panel-head"><h3 class="panel-title" id="trace-h">Run log</h3></div>
           <ol class="trace" id="trace"></ol>
-          <p class="meta" id="usage"></p>
-        </div>
-      </aside>
-    </div>
-    <div class="block table-block">
-      <div class="side-head"><p class="label" id="table-label">Result</p></div>
-      <div class="table-wrap"><table id="table"></table></div>
-    </div>
-  </section>
+          <p class="usage" id="usage"></p>
+        </section>
+      </div>
+    </section>
 
-  <section id="error" class="error" hidden role="alert"></section>
-</main>
+    <section id="error" class="error" hidden role="alert"></section>
 
-<footer class="wrap foot">
-  <p class="label">Single SELECT only · parsed with sqlglot · read-only connection · statement timeout · row cap</p>
-  <p class="label"><a href="https://github.com/bprakashputta/sql-analyst-agent">source</a></p>
-</footer>
+    <div class="empty" id="empty">
+      <p class="empty-t">Ask in plain English. The agent writes one read-only query, runs it, charts the result and explains it.</p>
+      <p class="empty-s">Browse tables and columns in the schema panel. Nothing here can change the data.</p>
+    </div>
+  </main>
+</div>
 <script src="/static/app.js" defer></script>
 </body>
 </html>
