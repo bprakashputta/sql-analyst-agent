@@ -412,6 +412,7 @@ def build_graph(deps: Deps) -> Any:
             cfg.escalate_schema
             and cfg.link_schema
             and not state.get("full_schema")
+            and len(state["schema_tables"]) < len(deps.schema.tables)
             and last["status"] in ("error", "refused", "empty")
             and (last["status"] == "empty" or _MISSING_OBJECT.search(last["error"] or ""))
         )

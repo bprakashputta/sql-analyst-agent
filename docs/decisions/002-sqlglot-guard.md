@@ -23,7 +23,7 @@ checked" and "what ran".
   queries (CTEs, window functions, correlated subqueries, set operations).
 - **Fidelity:** re-rendering changed the result of **0/500** gold queries (`python -m
   sql_analyst.evals.fidelity`, exact ordered comparison, `evals/guard_fidelity.json`).
-- **Cost:** 1-9 ms per query on the eval traces.
+- **Cost:** 2-12 ms per query in the step traces of the demo app.
 
 ## Alternatives considered
 - **sqlparse:** a tokenizer, not a parser: no reliable tree to walk, can't re-render.

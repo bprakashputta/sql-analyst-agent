@@ -62,7 +62,8 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "retried": len(retried),
         "rescued": len(rescued),
         "hurt": len(hurt),
-        "escalated": sum(1 for r in rows if r.get("escalated")),
+        # Widening only means something when the prompt had a partial schema to begin with.
+        "escalated": sum(1 for r in rows if r.get("escalated") and r.get("linked_tables")),
         "link_recall": _pct(sum(recall) / len(recall)) if recall else None,
         "mean_input_tokens": round(statistics.mean(r["input_tokens"] for r in rows)),
         "mean_output_tokens": round(statistics.mean(r["output_tokens"] for r in rows)),

@@ -15,7 +15,9 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///data/demo/chinook.sqlite"
     anthropic_api_key: str | None = None
 
-    model: str = "claude-haiku-5-5"
+    # Sonnet 5.5 answered 87% of a 100-question BIRD sample vs 69% for Haiku 5.5 on the same
+    # questions, at ~$0.006 vs ~$0.0007 per question (ADR 005). MODEL=claude-haiku-5-5 is the budget mode.
+    model: str = "claude-sonnet-5-5"
     effort: str = "medium"
     llm_timeout_s: float = 60.0
     llm_max_retries: int = 3

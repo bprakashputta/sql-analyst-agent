@@ -33,7 +33,20 @@ Table recall = share of questions where every table the gold query uses was link
 | + value index | 82% |
 | + top 6, no cutoff, plural stemming | **94%** |
 
-LINK_TEST_EVIDENCE
+On the **test split (N=400)**, forcing the linker on every question (`agent_forced_linking`) against
+the production agent that sends BIRD's small schemas whole (`agent`), both Haiku 5.5:
+
+| | full schema (production) | linking forced |
+|---|---|---|
+| execution accuracy | **71.8%** | 66.2% |
+| paired difference | | **-5.5 pp** (95% CI -10.0 to -1.0) |
+| prompt tokens per question | 4,349 | 3,824 (-12%) |
+| queries that ended in an execution error | 2 | 33 |
+| table recall | | 85.9% |
+
+When the linker missed a gold table, accuracy on those questions was 12%; when it didn't, 74%.
+Widening to the full schema after a failure fired 9 times and is why the gap isn't larger. A 12% token
+saving isn't worth 5.5 points of accuracy, hence the budget: below 3,000 tokens the schema goes whole.
 
 ## Alternatives considered
 - **Embedding retrieval over columns:** another service and model call per question; the misses we saw

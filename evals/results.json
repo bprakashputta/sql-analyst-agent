@@ -1,0 +1,716 @@
+{
+ "runs": {
+  "agent__dev": {
+   "config": "agent",
+   "split": "dev",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "description": "Schema linking + sample values + self-correction with schema escalation (production)",
+   "n": 100,
+   "ex_set": 66.0,
+   "ex_set_ci95": [
+    57.0,
+    75.0
+   ],
+   "ex_ordered": 63.0,
+   "ex_set_raw_floats": 66.0,
+   "by_difficulty": {
+    "moderate": {
+     "n": 5,
+     "ex": 40.0
+    },
+    "challenging": {
+     "n": 95,
+     "ex": 67.4
+    }
+   },
+   "exec_errors": 0,
+   "failed": 0,
+   "retried": 2,
+   "rescued": 2,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": null,
+   "mean_input_tokens": 3867,
+   "mean_output_tokens": 972,
+   "mean_llm_calls": 1.03,
+   "usd_per_question": 0.0006,
+   "usd_total": 0.06,
+   "cached_calls": 0,
+   "latency_p50_s": 4.03,
+   "latency_p95_s": 9.43
+  },
+  "agent__test": {
+   "config": "agent",
+   "split": "test",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "description": "Schema linking + sample values + self-correction with schema escalation (production)",
+   "n": 400,
+   "ex_set": 71.8,
+   "ex_set_ci95": [
+    67.2,
+    76.2
+   ],
+   "ex_ordered": 69.5,
+   "ex_set_raw_floats": 71.5,
+   "by_difficulty": {
+    "simple": {
+     "n": 8,
+     "ex": 62.5
+    },
+    "moderate": {
+     "n": 27,
+     "ex": 66.7
+    },
+    "challenging": {
+     "n": 365,
+     "ex": 72.3
+    }
+   },
+   "exec_errors": 2,
+   "failed": 0,
+   "retried": 31,
+   "rescued": 20,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": null,
+   "mean_input_tokens": 4349,
+   "mean_output_tokens": 1192,
+   "mean_llm_calls": 1.1,
+   "usd_per_question": 0.000675,
+   "usd_total": 0.2701,
+   "cached_calls": 0,
+   "latency_p50_s": 4.44,
+   "latency_p95_s": 14.79
+  },
+  "agent_forced_linking__dev": {
+   "config": "agent_forced_linking",
+   "split": "dev",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "description": "The agent with schema linking forced on every question (token budget 0)",
+   "n": 100,
+   "ex_set": 70.0,
+   "ex_set_ci95": [
+    61.0,
+    79.0
+   ],
+   "ex_ordered": 67.0,
+   "ex_set_raw_floats": 70.0,
+   "by_difficulty": {
+    "moderate": {
+     "n": 5,
+     "ex": 40.0
+    },
+    "challenging": {
+     "n": 95,
+     "ex": 71.6
+    }
+   },
+   "exec_errors": 1,
+   "failed": 1,
+   "retried": 4,
+   "rescued": 1,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": 89.6,
+   "mean_input_tokens": 3244,
+   "mean_output_tokens": 1002,
+   "mean_llm_calls": 1.07,
+   "usd_per_question": 0.000592,
+   "usd_total": 0.0592,
+   "cached_calls": 0,
+   "latency_p50_s": 3.82,
+   "latency_p95_s": 9.5
+  },
+  "agent_forced_linking__test": {
+   "config": "agent_forced_linking",
+   "split": "test",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "description": "The agent with schema linking forced on every question (token budget 0)",
+   "n": 400,
+   "ex_set": 66.2,
+   "ex_set_ci95": [
+    61.8,
+    70.8
+   ],
+   "ex_ordered": 64.5,
+   "ex_set_raw_floats": 66.2,
+   "by_difficulty": {
+    "simple": {
+     "n": 8,
+     "ex": 75.0
+    },
+    "moderate": {
+     "n": 27,
+     "ex": 55.6
+    },
+    "challenging": {
+     "n": 365,
+     "ex": 66.8
+    }
+   },
+   "exec_errors": 33,
+   "failed": 1,
+   "retried": 26,
+   "rescued": 15,
+   "hurt": 0,
+   "escalated": 9,
+   "link_recall": 85.9,
+   "mean_input_tokens": 3824,
+   "mean_output_tokens": 1098,
+   "mean_llm_calls": 1.09,
+   "usd_per_question": 0.000794,
+   "usd_total": 0.3175,
+   "cached_calls": 0,
+   "latency_p50_s": 4.7,
+   "latency_p95_s": 14.26
+  },
+  "agent_low__dev": {
+   "config": "agent_low",
+   "split": "dev",
+   "model": "claude-haiku-5-5",
+   "effort": "low",
+   "description": "agent (linking forced) at effort=low",
+   "n": 100,
+   "ex_set": 63.0,
+   "ex_set_ci95": [
+    54.0,
+    72.0
+   ],
+   "ex_ordered": 61.0,
+   "ex_set_raw_floats": 63.0,
+   "by_difficulty": {
+    "moderate": {
+     "n": 5,
+     "ex": 40.0
+    },
+    "challenging": {
+     "n": 95,
+     "ex": 64.2
+    }
+   },
+   "exec_errors": 0,
+   "failed": 0,
+   "retried": 3,
+   "rescued": 1,
+   "hurt": 0,
+   "escalated": 2,
+   "link_recall": 92.0,
+   "mean_input_tokens": 3170,
+   "mean_output_tokens": 800,
+   "mean_llm_calls": 1.04,
+   "usd_per_question": 0.000661,
+   "usd_total": 0.0661,
+   "cached_calls": 4,
+   "latency_p50_s": 3.42,
+   "latency_p95_s": 6.32
+  },
+  "agent_review__dev": {
+   "config": "agent_review",
+   "split": "dev",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "description": "agent (linking forced) + a model review of each result (one extra call)",
+   "n": 100,
+   "ex_set": 69.0,
+   "ex_set_ci95": [
+    59.0,
+    78.0
+   ],
+   "ex_ordered": 65.0,
+   "ex_set_raw_floats": 69.0,
+   "by_difficulty": {
+    "moderate": {
+     "n": 5,
+     "ex": 40.0
+    },
+    "challenging": {
+     "n": 95,
+     "ex": 70.5
+    }
+   },
+   "exec_errors": 1,
+   "failed": 1,
+   "retried": 11,
+   "rescued": 8,
+   "hurt": 2,
+   "escalated": 0,
+   "link_recall": 89.6,
+   "mean_input_tokens": 6333,
+   "mean_output_tokens": 1389,
+   "mean_llm_calls": 2.11,
+   "usd_per_question": 0.000829,
+   "usd_total": 0.0829,
+   "cached_calls": 0,
+   "latency_p50_s": 6.32,
+   "latency_p95_s": 18.13
+  },
+  "agent_review_low__dev": {
+   "config": "agent_review_low",
+   "split": "dev",
+   "model": "claude-haiku-5-5",
+   "effort": "low",
+   "description": "agent (linking forced) + a model review of each result, low",
+   "n": 100,
+   "ex_set": 67.0,
+   "ex_set_ci95": [
+    58.0,
+    76.0
+   ],
+   "ex_ordered": 65.0,
+   "ex_set_raw_floats": 67.0,
+   "by_difficulty": {
+    "moderate": {
+     "n": 5,
+     "ex": 40.0
+    },
+    "challenging": {
+     "n": 95,
+     "ex": 68.4
+    }
+   },
+   "exec_errors": 0,
+   "failed": 0,
+   "retried": 9,
+   "rescued": 6,
+   "hurt": 1,
+   "escalated": 1,
+   "link_recall": 91.0,
+   "mean_input_tokens": 6337,
+   "mean_output_tokens": 1056,
+   "mean_llm_calls": 2.1,
+   "usd_per_question": 0.000456,
+   "usd_total": 0.0456,
+   "cached_calls": 99,
+   "latency_p50_s": 0.93,
+   "latency_p95_s": 10.23
+  },
+  "agent_sonnet__test": {
+   "config": "agent_sonnet",
+   "split": "test",
+   "model": "claude-sonnet-5-5",
+   "effort": "medium",
+   "description": "The production agent on Claude Sonnet 5.5 instead of Haiku 5.5",
+   "n": 100,
+   "ex_set": 87.0,
+   "ex_set_ci95": [
+    80.0,
+    93.0
+   ],
+   "ex_ordered": 86.0,
+   "ex_set_raw_floats": 86.0,
+   "by_difficulty": {
+    "simple": {
+     "n": 5,
+     "ex": 100.0
+    },
+    "moderate": {
+     "n": 7,
+     "ex": 71.4
+    },
+    "challenging": {
+     "n": 88,
+     "ex": 87.5
+    }
+   },
+   "exec_errors": 0,
+   "failed": 0,
+   "retried": 3,
+   "rescued": 3,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": null,
+   "mean_input_tokens": 3944,
+   "mean_output_tokens": 390,
+   "mean_llm_calls": 1.03,
+   "usd_per_question": 0.006279,
+   "usd_total": 0.6279,
+   "cached_calls": 0,
+   "latency_p50_s": 2.83,
+   "latency_p95_s": 8.06
+  },
+  "baseline__dev": {
+   "config": "baseline",
+   "split": "dev",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "description": "One shot, full schema (tables, types, keys), no sample values, no retries",
+   "n": 100,
+   "ex_set": 63.0,
+   "ex_set_ci95": [
+    54.0,
+    73.0
+   ],
+   "ex_ordered": 61.0,
+   "ex_set_raw_floats": 63.0,
+   "by_difficulty": {
+    "moderate": {
+     "n": 5,
+     "ex": 40.0
+    },
+    "challenging": {
+     "n": 95,
+     "ex": 64.2
+    }
+   },
+   "exec_errors": 0,
+   "failed": 0,
+   "retried": 0,
+   "rescued": 0,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": null,
+   "mean_input_tokens": 2312,
+   "mean_output_tokens": 936,
+   "mean_llm_calls": 1,
+   "usd_per_question": 0.000536,
+   "usd_total": 0.0536,
+   "cached_calls": 0,
+   "latency_p50_s": 4.05,
+   "latency_p95_s": 6.77
+  },
+  "baseline__test": {
+   "config": "baseline",
+   "split": "test",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "description": "One shot, full schema (tables, types, keys), no sample values, no retries",
+   "n": 400,
+   "ex_set": 62.7,
+   "ex_set_ci95": [
+    58.0,
+    67.2
+   ],
+   "ex_ordered": 60.0,
+   "ex_set_raw_floats": 62.5,
+   "by_difficulty": {
+    "simple": {
+     "n": 8,
+     "ex": 62.5
+    },
+    "moderate": {
+     "n": 27,
+     "ex": 59.3
+    },
+    "challenging": {
+     "n": 365,
+     "ex": 63.0
+    }
+   },
+   "exec_errors": 6,
+   "failed": 5,
+   "retried": 0,
+   "rescued": 0,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": null,
+   "mean_input_tokens": 2620,
+   "mean_output_tokens": 1059,
+   "mean_llm_calls": 1,
+   "usd_per_question": 0.000584,
+   "usd_total": 0.2336,
+   "cached_calls": 0,
+   "latency_p50_s": 4.37,
+   "latency_p95_s": 10.46
+  },
+  "baseline_low__dev": {
+   "config": "baseline_low",
+   "split": "dev",
+   "model": "claude-haiku-5-5",
+   "effort": "low",
+   "description": "baseline at effort=low",
+   "n": 100,
+   "ex_set": 59.0,
+   "ex_set_ci95": [
+    49.0,
+    69.0
+   ],
+   "ex_ordered": 58.0,
+   "ex_set_raw_floats": 59.0,
+   "by_difficulty": {
+    "moderate": {
+     "n": 5,
+     "ex": 40.0
+    },
+    "challenging": {
+     "n": 95,
+     "ex": 60.0
+    }
+   },
+   "exec_errors": 0,
+   "failed": 0,
+   "retried": 0,
+   "rescued": 0,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": null,
+   "mean_input_tokens": 2312,
+   "mean_output_tokens": 784,
+   "mean_llm_calls": 1,
+   "usd_per_question": 0.000473,
+   "usd_total": 0.0473,
+   "cached_calls": 0,
+   "latency_p50_s": 3.75,
+   "latency_p95_s": 6.67
+  },
+  "full_schema_selfcorrect__dev": {
+   "config": "full_schema_selfcorrect",
+   "split": "dev",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "description": "Full schema + sample values + self-correction (up to 3 attempts)",
+   "n": 100,
+   "ex_set": 71.0,
+   "ex_set_ci95": [
+    62.0,
+    80.0
+   ],
+   "ex_ordered": 69.0,
+   "ex_set_raw_floats": 71.0,
+   "by_difficulty": {
+    "moderate": {
+     "n": 5,
+     "ex": 40.0
+    },
+    "challenging": {
+     "n": 95,
+     "ex": 72.6
+    }
+   },
+   "exec_errors": 0,
+   "failed": 0,
+   "retried": 1,
+   "rescued": 1,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": null,
+   "mean_input_tokens": 3575,
+   "mean_output_tokens": 931,
+   "mean_llm_calls": 1.01,
+   "usd_per_question": 0.000569,
+   "usd_total": 0.0569,
+   "cached_calls": 0,
+   "latency_p50_s": 3.8,
+   "latency_p95_s": 8.08
+  },
+  "full_schema_selfcorrect__test": {
+   "config": "full_schema_selfcorrect",
+   "split": "test",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "description": "Full schema + sample values + self-correction (up to 3 attempts)",
+   "n": 400,
+   "ex_set": 73.2,
+   "ex_set_ci95": [
+    68.8,
+    77.5
+   ],
+   "ex_ordered": 71.0,
+   "ex_set_raw_floats": 73.0,
+   "by_difficulty": {
+    "simple": {
+     "n": 8,
+     "ex": 62.5
+    },
+    "moderate": {
+     "n": 27,
+     "ex": 66.7
+    },
+    "challenging": {
+     "n": 365,
+     "ex": 74.0
+    }
+   },
+   "exec_errors": 3,
+   "failed": 0,
+   "retried": 24,
+   "rescued": 17,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": null,
+   "mean_input_tokens": 4298,
+   "mean_output_tokens": 1137,
+   "mean_llm_calls": 1.08,
+   "usd_per_question": 0.00065,
+   "usd_total": 0.26,
+   "cached_calls": 0,
+   "latency_p50_s": 4.49,
+   "latency_p95_s": 11.75
+  },
+  "full_schema_selfcorrect_low__dev": {
+   "config": "full_schema_selfcorrect_low",
+   "split": "dev",
+   "model": "claude-haiku-5-5",
+   "effort": "low",
+   "description": "full_schema_selfcorrect at effort=low",
+   "n": 100,
+   "ex_set": 64.0,
+   "ex_set_ci95": [
+    54.0,
+    73.0
+   ],
+   "ex_ordered": 62.0,
+   "ex_set_raw_floats": 64.0,
+   "by_difficulty": {
+    "moderate": {
+     "n": 5,
+     "ex": 20.0
+    },
+    "challenging": {
+     "n": 95,
+     "ex": 66.3
+    }
+   },
+   "exec_errors": 0,
+   "failed": 0,
+   "retried": 2,
+   "rescued": 1,
+   "hurt": 0,
+   "escalated": 0,
+   "link_recall": null,
+   "mean_input_tokens": 3650,
+   "mean_output_tokens": 766,
+   "mean_llm_calls": 1.03,
+   "usd_per_question": 0.000471,
+   "usd_total": 0.0471,
+   "cached_calls": 0,
+   "latency_p50_s": 3.47,
+   "latency_p95_s": 6.93
+  }
+ },
+ "comparisons": {
+  "agent vs baseline (dev)": {
+   "n": 100,
+   "delta_pp": 3.0,
+   "ci95_pp": [
+    -6.0,
+    12.0
+   ],
+   "b_only": 13,
+   "a_only": 10
+  },
+  "agent vs baseline (test)": {
+   "n": 400,
+   "delta_pp": 9.0,
+   "ci95_pp": [
+    4.0,
+    14.0
+   ],
+   "b_only": 68,
+   "a_only": 32
+  },
+  "agent_forced_linking vs baseline (dev)": {
+   "n": 100,
+   "delta_pp": 7.0,
+   "ci95_pp": [
+    -1.0,
+    15.0
+   ],
+   "b_only": 12,
+   "a_only": 5
+  },
+  "agent_forced_linking vs baseline (test)": {
+   "n": 400,
+   "delta_pp": 3.5,
+   "ci95_pp": [
+    -1.8,
+    8.8
+   ],
+   "b_only": 64,
+   "a_only": 50
+  },
+  "agent_low vs baseline (dev)": {
+   "n": 100,
+   "delta_pp": 0.0,
+   "ci95_pp": [
+    -9.0,
+    9.0
+   ],
+   "b_only": 11,
+   "a_only": 11
+  },
+  "agent_review vs baseline (dev)": {
+   "n": 100,
+   "delta_pp": 6.0,
+   "ci95_pp": [
+    -3.0,
+    15.0
+   ],
+   "b_only": 13,
+   "a_only": 7
+  },
+  "agent_review_low vs baseline (dev)": {
+   "n": 100,
+   "delta_pp": 4.0,
+   "ci95_pp": [
+    -5.0,
+    13.0
+   ],
+   "b_only": 12,
+   "a_only": 8
+  },
+  "agent_sonnet vs baseline (test)": {
+   "n": 100,
+   "delta_pp": 21.0,
+   "ci95_pp": [
+    9.0,
+    32.0
+   ],
+   "b_only": 29,
+   "a_only": 8
+  },
+  "baseline_low vs baseline (dev)": {
+   "n": 100,
+   "delta_pp": -4.0,
+   "ci95_pp": [
+    -12.0,
+    3.0
+   ],
+   "b_only": 6,
+   "a_only": 10
+  },
+  "full_schema_selfcorrect vs baseline (dev)": {
+   "n": 100,
+   "delta_pp": 8.0,
+   "ci95_pp": [
+    0.0,
+    16.0
+   ],
+   "b_only": 12,
+   "a_only": 4
+  },
+  "full_schema_selfcorrect vs baseline (test)": {
+   "n": 400,
+   "delta_pp": 10.5,
+   "ci95_pp": [
+    5.8,
+    15.2
+   ],
+   "b_only": 73,
+   "a_only": 31
+  },
+  "full_schema_selfcorrect_low vs baseline (dev)": {
+   "n": 100,
+   "delta_pp": 1.0,
+   "ci95_pp": [
+    -8.0,
+    10.0
+   ],
+   "b_only": 11,
+   "a_only": 10
+  },
+  "agent_sonnet vs agent (test)": {
+   "n": 100,
+   "delta_pp": 18.0,
+   "ci95_pp": [
+    8.0,
+    28.0
+   ],
+   "b_only": 24,
+   "a_only": 6
+  }
+ }
+}

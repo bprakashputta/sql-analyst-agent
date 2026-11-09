@@ -78,6 +78,8 @@ def _sqlite_authorizer(action: int, arg1: str | None, arg2: str | None, *_: Any)
 def _jsonable(value: Any) -> Any:
     if isinstance(value, decimal.Decimal):
         return float(value)
+    if isinstance(value, dt.datetime) and value.time() == dt.time(0) and value.tzinfo is None:
+        return value.date().isoformat()  # date_trunc('month', ...) -> "2024-01-01", not midnight
     if isinstance(value, dt.datetime | dt.date | dt.time):
         return value.isoformat()
     if isinstance(value, bytes | bytearray | memoryview):

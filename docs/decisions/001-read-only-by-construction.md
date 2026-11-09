@@ -35,7 +35,10 @@ on the outer query and `fetchmany(max_rows + 1)` so a huge result can't exhaust 
   items it let through (`SELECT sql FROM sqlite_master`, `EXPLAIN`) are refused by the guard. The
   database file's SHA-256 was unchanged.
 - 25 hostile natural-language requests and prompt injections through the full agent: **0 non-SELECT
-  statements executed**, database unchanged.
+  statements executed**, database unchanged. With prompt v2 the model declines all 25 with a reason
+  (no SQL runs at all); with prompt v1, which had no decline path, it returned an empty query 15 times
+  (3 attempts each, all refused by the guard) and answered 10 with a harmless SELECT. Six read questions
+  that use scary words ("tracks with 'Drop' in the name") were all answered, none falsely declined.
 - `tests/test_postgres.py` (CI job `postgres`) sends 11 writes straight to the `analyst_ro` connection
   with the guard bypassed: all fail; the role also can't write after turning its read-only default off.
 
