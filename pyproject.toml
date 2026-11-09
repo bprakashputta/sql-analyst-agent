@@ -1,0 +1,50 @@
+[project]
+name = "sql-analyst-agent"
+version = "0.1.0"
+description = "A LangGraph agent that answers business questions over a SQL database, read-only by construction, evaluated on BIRD mini-dev."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Bhanu Prakash Putta" }]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.2",
+    "sqlglot>=25",
+    "langchain-core>=0.3",
+    "langchain-anthropic>=0.3",
+    "langgraph>=0.3",
+    "structlog>=24",
+]
+
+[project.scripts]
+sql-analyst = "sql_analyst.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "httpx>=0.27",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sql_analyst"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+# The formatter keeps code within 100 columns; long prose in docstrings and comments is allowed.
+ignore = ["E501", "SIM905"]

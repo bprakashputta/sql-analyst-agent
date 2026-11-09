@@ -1,0 +1,41 @@
+# One command: `docker compose up --build`, then open http://localhost:8000
+# Postgres holds the Chinook sample store; the app connects as the read-only role analyst_ro.
+services:
+  db:
+    build: ./docker/postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      ANALYST_RO_PASSWORD: ${ANALYST_RO_PASSWORD:-analyst_ro}
+    healthcheck:
+      # Over TCP and as the app's role: the temporary server that runs the init scripts listens on the
+      # unix socket only, so this can't pass before Chinook and the role both exist.
+      test: ["CMD-SHELL", "PGPASSWORD=$$ANALYST_RO_PASSWORD psql -h 127.0.0.1 -U analyst_ro -d chinook -tAc 'SELECT 1 FROM invoice LIMIT 1' | grep -q 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    mem_limit: 256m
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://analyst_ro:${ANALYST_RO_PASSWORD:-analyst_ro}@db:5432/chinook
+      DATA_DIR: /app/data
+    ports:
+      - "8000:8000"
+    volumes:
+      # The spend ledger and response cache live here, shared with local runs, so the $ cap holds
+      # across the container, the CLI and the eval.
+      - ./data:/app/data
+    mem_limit: 512m
+
+volumes:
+  pgdata:

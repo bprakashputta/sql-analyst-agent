@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest -q
+
+  postgres:
+    # The read-only role and the guard against a real Postgres: build the compose database image
+    # and run the direct-attack corpus through it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --locked
+      - run: docker compose -f docker-compose.yml -f docker-compose.test.yml up -d --build --wait db
+      - run: uv run pytest -q tests/test_postgres.py
+        env:
+          PG_TEST_URL: postgresql://analyst_ro:analyst_ro@localhost:55432/chinook
